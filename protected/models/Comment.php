@@ -40,8 +40,10 @@ class Comment extends CActiveRecord
 			array('author, email, url', 'length', 'max'=>128),
 			array('email','email'),
 			array('url','url'),
+			array('status', 'in', 'range' => array(self::STATUS_PENDING, self::STATUS_APPROVED))
 		);
 	}
+	
 
 	/**
 	 * @return array relational rules.
@@ -103,7 +105,14 @@ class Comment extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
-
+	public function findRecentComments($limit=10)
+    {
+        return $this->with('post')->findAll(array(
+            'condition'=>'t.status='.self::STATUS_APPROVED,
+            'order'=>'t.create_time DESC',
+            'limit'=>$limit,
+        ));
+    }
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
